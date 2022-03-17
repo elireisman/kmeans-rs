@@ -1,3 +1,4 @@
+use crate::cli::Args;
 use crate::kmeans::Cluster;
 use crate::point::Point;
 use plotters::prelude::*;
@@ -39,18 +40,19 @@ pub fn render_json(all_clusters: &Vec<Cluster>) {
 
 // render PNG for a single K-means iteration
 pub fn render_iteration_png(
-    bounds: (&Point, &Point),
+    args: &Args,
     clusters: &Cluster,
-    k: usize,
     iter: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let filename = format!("kmeans-iter-{:03.1}.png", iter);
+    let bounds = args.bounds();
+    let filename = format!("{}/iteration-{:05}.png", args.png_out, iter);
+
     let root = BitMapBackend::new(&filename, (1024, 1024)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let mut chart = ChartBuilder::on(&root)
         .caption(
-            format!("K-means (k={}, iteration={})", k, iter),
+            format!("K-means (k={}, iteration={})", args.k, iter),
             ("sans-serif", 50).into_font(),
         )
         .margin(5 as u32)

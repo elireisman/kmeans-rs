@@ -1,6 +1,5 @@
 use crate::cli::Args;
 use crate::point::Point;
-use crate::render::{render_iteration_png, render_json};
 use std::collections::HashMap;
 
 pub type Cluster<'a> = HashMap<Point, Vec<&'a Point>>;
@@ -44,7 +43,7 @@ fn regroup_points(points: &Vec<Point>, centroids: Vec<Point>) -> Cluster {
 }
 
 // https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
-pub fn execute(args: Args, points: &Vec<Point>) {
+pub fn execute<'a>(args: &Args, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
     // validate inputs
     if points.len() <= args.k {
         panic!("kmeans-rs: k param cannot be greater than the points vector size!");
@@ -76,14 +75,5 @@ pub fn execute(args: Args, points: &Vec<Point>) {
         cache.push(clusters.clone());
     }
 
-    // render outputs
-    eprintln!("kmeans-rs: rendering output");
-    if args.json_out {
-        render_json(&cache);
-    }
-    if !args.png_out.is_empty() {
-        for (pos, clusters) in cache.iter().enumerate() {
-            render_iteration_png(args.bounds(), clusters, args.k, pos).unwrap()
-        }
-    }
+    cache
 }
