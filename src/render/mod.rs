@@ -15,21 +15,29 @@ struct IterationJson<'a> {
     clusters: Vec<ClusterJson<'a>>,
 }
 
-pub fn render_iteration_json(iteration: usize, clusters: &Cluster) {
-    let formatted = IterationJson {
-        iteration: iteration,
-        clusters: clusters
-            .iter()
-            .map(|(k, v)| ClusterJson {
-                centroid: k,
-                cluster: v,
-            })
-            .collect(),
-    };
+// render JSON output for each iteration of K-means performed
+pub fn render_json(all_clusters: &Vec<Cluster>) {
+    let mut result = vec![];
+    for (iteration, clusters) in all_clusters.iter().enumerate() {
+        let formatted = IterationJson {
+            iteration: iteration,
+            clusters: clusters
+                .iter()
+                .map(|(k, v)| ClusterJson {
+                    centroid: k,
+                    cluster: v,
+                })
+                .collect(),
+        };
 
-    println!("{}", serde_json::to_string(&formatted).ok().unwrap());
+        result.push(formatted);
+    }
+
+    // TODO: yuck stdout; do better
+    println!("{}", serde_json::to_string(&result).ok().unwrap());
 }
 
+// render PNG for a single K-means iteration
 pub fn render_iteration_png(
     bounds: (&Point, &Point),
     clusters: &Cluster,

@@ -1,6 +1,6 @@
 use crate::cli::Args;
 use crate::point::Point;
-use crate::render::{render_iteration_json, render_iteration_png};
+use crate::render::{render_iteration_png, render_json};
 use std::collections::HashMap;
 
 pub type Cluster<'a> = HashMap<Point, Vec<&'a Point>>;
@@ -62,16 +62,28 @@ pub fn execute(args: Args, points: &Vec<Point>) {
     let mut clusters = regroup_points(points, initial_centroids);
 
     // perform iterations
-    //let mut cache = vec![clusters.clone()];
+    let mut cache = vec![clusters.clone()];
     for iter in 1..=args.iterations {
+        eprintln!("kmeans-rs: calculating iteration {}", iter);
+
         let mut next_centroids = vec![];
         for (centroid, cluster) in &clusters {
             let next_centroid = calculate_next_centroid(centroid, cluster);
             next_centroids.push(next_centroid);
         }
-        clusters = regroup_points(points, next_centroids);
 
-        render_iteration_json(iter, &clusters);
-        render_iteration_png(args.bounds(), &clusters, args.k, iter).unwrap();
+        clusters = regroup_points(points, next_centroids);
+        cache.push(clusters.clone());
+    }
+
+    // render outputs
+    eprintln!("kmeans-rs: rendering output");
+    if args.json_out {
+        render_json(&cache);
+    }
+    if !args.png_out.is_empty() {
+        for (pos, clusters) in cache.iter().enumerate() {
+            render_iteration_png(args.bounds(), clusters, args.k, pos).unwrap()
+        }
     }
 }
