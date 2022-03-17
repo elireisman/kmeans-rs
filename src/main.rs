@@ -7,7 +7,7 @@ use clap::Parser;
 
 fn main() {
     let args = cli::Args::parse();
-    println!("with arguments: {:?}", args);
+    eprintln!("kmeans-rs: initialized with: {:?}", args);
 
     let points = point::Point::generate_points(args.bounds(), args.num_points);
 
