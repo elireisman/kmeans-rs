@@ -43,7 +43,7 @@ fn regroup_points(points: &Vec<Point>, centroids: Vec<Point>) -> Cluster {
 }
 
 // https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
-pub fn execute(bounds: &(Point, Point), points: &Vec<Point>, k: usize, iters: usize) {
+pub fn execute(bounds: (&Point, &Point), points: &Vec<Point>, k: usize, iters: usize) {
     // validate inputs
     if points.len() <= k {
         panic!("kmeans-rs: k param cannot be greater than the points vector size!");
@@ -54,7 +54,7 @@ pub fn execute(bounds: &(Point, Point), points: &Vec<Point>, k: usize, iters: us
 
     // initialize candidate centroids randomly and assign cluster colors
     let initial_centroids = (1..=k)
-        .map(|color| Point::generate_point(&bounds, Some(color)))
+        .map(|color| Point::generate_point(bounds, Some(color)))
         .collect();
 
     // perform the initial clustering using candidates

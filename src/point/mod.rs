@@ -2,6 +2,8 @@ use rand::prelude::*;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
+use std::num::ParseFloatError;
+use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, Serialize)]
 pub struct Point {
@@ -19,7 +21,7 @@ impl PartialEq for Point {
         let diffx = f64::abs(self.x - other.x);
         let diffy = f64::abs(self.y - other.y);
 
-        return diffx < EPSILON && diffy < EPSILON;
+        return diffx < EPSILON && diffy < EPSILON && self.color == other.color;
     }
 }
 
@@ -37,12 +39,32 @@ impl Hash for Point {
     }
 }
 
+impl FromStr for Point {
+    type Err = ParseFloatError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let coords: Vec<&str> = s
+            .trim_matches(|p| p == '(' || p == ')')
+            .split(',')
+            .collect();
+
+        let x_fromstr = coords[0].parse::<f64>()?;
+        let y_fromstr = coords[1].parse::<f64>()?;
+
+        Ok(Point {
+            x: x_fromstr,
+            y: y_fromstr,
+            color: None,
+        })
+    }
+}
+
 impl Point {
     pub fn sum_squared_error(&self, other: &Self) -> f64 {
         f64::powf(self.x - other.x, 2.0) + f64::powf(self.y - other.y, 2.0)
     }
 
-    pub fn generate_points(bounds: &(Point, Point), cardinality: usize) -> Vec<Point> {
+    pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Point> {
         let mut points = vec![];
         for _ in 1..=cardinality {
             points.push(Self::generate_point(bounds, None));
@@ -51,7 +73,7 @@ impl Point {
         points
     }
 
-    pub fn generate_point(bounds: &(Point, Point), color: Option<usize>) -> Point {
+    pub fn generate_point(bounds: (&Point, &Point), color: Option<usize>) -> Point {
         let mut r = rand::thread_rng();
 
         loop {

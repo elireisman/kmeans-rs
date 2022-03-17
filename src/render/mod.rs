@@ -31,7 +31,7 @@ pub fn render_iteration_json(iteration: usize, clusters: &Cluster) {
 }
 
 pub fn render_iteration_png(
-    bounds: &(Point, Point),
+    bounds: (&Point, &Point),
     clusters: &Cluster,
     k: usize,
     iter: usize,
