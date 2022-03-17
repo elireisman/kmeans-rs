@@ -16,8 +16,8 @@ struct IterationJson<'a> {
     clusters: Vec<ClusterJson<'a>>,
 }
 
-// render JSON output for each iteration of K-means performed
-pub fn render_json(all_clusters: &Vec<Cluster>) {
+// render JSON output for all iterations of K-means performed
+pub fn json_all_iterations(all_clusters: &Vec<Cluster>) {
     let mut result = vec![];
     for (iteration, clusters) in all_clusters.iter().enumerate() {
         let formatted = IterationJson {
@@ -39,13 +39,13 @@ pub fn render_json(all_clusters: &Vec<Cluster>) {
 }
 
 // render PNG for a single K-means iteration
-pub fn render_iteration_png(
+pub fn png_for_iteration(
     args: &Args,
     clusters: &Cluster,
     iter: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let bounds = args.bounds();
-    let filename = format!("{}/iteration-{:05}.png", args.png_out, iter);
+    let filename = format!("{}/iteration-{:05}.png", &args.png_out, iter);
 
     let root = BitMapBackend::new(&filename, (1024, 1024)).into_drawing_area();
     root.fill(&WHITE)?;
