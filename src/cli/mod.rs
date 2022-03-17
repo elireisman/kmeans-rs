@@ -65,7 +65,7 @@ impl Args {
             panic!("kmeans-rs: 'k' greater than points found in input file");
         }
 
-        return input
+        let points: Vec<Point> = input
             .iter()
             .map(|json_val: &Value| {
                 let p = json_val.as_object().unwrap();
@@ -77,5 +77,18 @@ impl Args {
                 }
             })
             .collect();
+
+        let bounds = self.bounds();
+        if points
+            .iter()
+            .any(|p| p.x < bounds.0.x || p.x >= bounds.1.x || p.y < bounds.0.y || p.y >= bounds.1.y)
+        {
+            panic!(
+                "kmeans-rs: some input points are out of bounds: {:?}",
+                bounds
+            );
+        }
+
+        points
     }
 }
