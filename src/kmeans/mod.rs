@@ -1,3 +1,4 @@
+use crate::cli::Args;
 use crate::point::Point;
 use crate::render::{render_iteration_json, render_iteration_png};
 use std::collections::HashMap;
@@ -43,25 +44,26 @@ fn regroup_points(points: &Vec<Point>, centroids: Vec<Point>) -> Cluster {
 }
 
 // https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
-pub fn execute(bounds: (&Point, &Point), points: &Vec<Point>, k: usize, iters: usize) {
+pub fn execute(args: Args, points: &Vec<Point>) {
     // validate inputs
-    if points.len() <= k {
+    if points.len() <= args.k {
         panic!("kmeans-rs: k param cannot be greater than the points vector size!");
     }
-    if iters < 1 {
+    if args.iterations < 1 {
         panic!("kmean-rs: no point in performing less than 1 iteration!");
     }
 
     // initialize candidate centroids randomly and assign cluster colors
-    let initial_centroids = (1..=k)
-        .map(|color| Point::generate_point(bounds, Some(color)))
+    let initial_centroids = (1..=args.k)
+        .map(|color| Point::generate_point(args.bounds(), Some(color)))
         .collect();
 
     // perform the initial clustering using candidates
     let mut clusters = regroup_points(points, initial_centroids);
 
     // perform iterations
-    for iter in 1..=iters {
+    //let mut cache = vec![clusters.clone()];
+    for iter in 1..=args.iterations {
         let mut next_centroids = vec![];
         for (centroid, cluster) in &clusters {
             let next_centroid = calculate_next_centroid(centroid, cluster);
@@ -70,6 +72,6 @@ pub fn execute(bounds: (&Point, &Point), points: &Vec<Point>, k: usize, iters: u
         clusters = regroup_points(points, next_centroids);
 
         render_iteration_json(iter, &clusters);
-        render_iteration_png(bounds, &clusters, k, iter).unwrap();
+        render_iteration_png(args.bounds(), &clusters, args.k, iter).unwrap();
     }
 }

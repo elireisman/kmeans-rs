@@ -12,5 +12,5 @@ fn main() {
     let points = point::Point::generate_points(args.bounds(), args.num_points);
 
     // convert results into JSON-friendly format, print it
-    kmeans::execute(args.bounds(), &points, args.k, args.iterations);
+    kmeans::execute(args, &points);
 }
