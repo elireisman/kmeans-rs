@@ -2,14 +2,14 @@
 The kind of thing you write when you're learning a new language. Generates JSON or PNG image outputs:
 
 ```bash
-kmeans 0.1.0
+kmeans-rs 0.4.0
 
 USAGE:
-    kmeans [OPTIONS]
+    kmeans-rs [OPTIONS]
 
 OPTIONS:
     -h, --help                         Print help information
-    -i, --iterations <ITERATIONS>      [default: 10]
+    -i, --iterations <ITERATIONS>      [default: 12]
         --json-out
     -k, --k <K>                        [default: 4]
         --lower-bound <LOWER_BOUND>    [default: (0,0)]
@@ -24,7 +24,7 @@ OPTIONS:
 Using the `--points-file <PATH>` argument, you can specify your own input points as JSON of the form:
 ```
 [
-  {"x": 1.0, "y": 2.0},
+  {"x": 1, "y": 2},
   {"x:" 3.3, "y": 4.444},
   ...
 ]
