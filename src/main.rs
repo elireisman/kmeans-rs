@@ -16,7 +16,7 @@ fn main() {
         panic!("kmean-rs: no point in performing less than 1 iteration");
     }
 
-    let points = point::Point::generate_points(args.bounds(), args.num_points);
+    let points = point::generate_points(args.bounds(), args.num_points);
     let result = kmeans::execute(&args, &points);
 
     eprintln!("kmeans-rs: rendering output");
@@ -25,7 +25,7 @@ fn main() {
     }
 
     if !args.png_out.is_empty() {
-        std::fs::remove_dir_all(&args.png_out).unwrap();
+        let _ = std::fs::remove_dir_all(&args.png_out);
         std::fs::create_dir_all(&args.png_out).unwrap();
         for (iteration, clusters) in result.iter().enumerate() {
             render::render_iteration_png(&args, clusters, iteration).unwrap();

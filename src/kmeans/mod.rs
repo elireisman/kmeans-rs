@@ -1,5 +1,5 @@
 use crate::cli::Args;
-use crate::point::Point;
+use crate::point::{generate_point, Point};
 use std::collections::HashMap;
 
 pub type Cluster<'a> = HashMap<Point, Vec<&'a Point>>;
@@ -10,7 +10,7 @@ const EPSILON: f64 = 0.01;
 pub fn execute<'a>(args: &Args, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
     // initialize candidate centroids randomly and assign cluster colors
     let initial_centroids = (1..=args.k)
-        .map(|color| Point::generate_point(args.bounds(), Some(color)))
+        .map(|color| generate_point(args.bounds(), Some(color)))
         .collect();
 
     // perform the initial clustering using candidates
