@@ -23,8 +23,8 @@ pub struct Args {
     // if present, the path to a file containing a JSON array of points of the form
     // [{"x": 1.1, "y": 2.2}, {"x": 3.3, "y": 4.4}, ...] to use as inputs.
     // Overrides --num-points if present.
-    #[clap(short, long, default_value = "")]
-    pub points_file: String,
+    #[clap(short, long)]
+    pub points_file: Option<String>,
 
     // render and store per-iteration PNG images
     #[clap(long, default_value = "kmeans-pngs")]
@@ -49,7 +49,7 @@ impl Args {
     }
 
     pub fn points(&self) -> Vec<Point> {
-        if self.points_file.is_empty() {
+        if self.points_file.is_none() {
             if self.num_points < self.k {
                 panic!("kmeans-rs: 'k' greater than 'num_points'");
             }
@@ -57,7 +57,7 @@ impl Args {
             return generate_points(self.bounds(), self.num_points);
         }
 
-        let file = File::open(&self.points_file).unwrap();
+        let file = File::open(self.points_file.as_ref().unwrap()).unwrap();
         let reader = BufReader::new(file);
         let input: Vec<Value> = from_reader(reader).unwrap();
 
