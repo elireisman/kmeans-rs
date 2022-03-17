@@ -9,6 +9,13 @@ fn main() {
     let args = cli::Args::parse();
     eprintln!("kmeans-rs: initialized with: {:?}", args);
 
+    if args.num_points < args.k {
+        panic!("kmeans-rs: 'k' greater than 'num_points'");
+    }
+    if args.iterations < 1 {
+        panic!("kmean-rs: no point in performing less than 1 iteration");
+    }
+
     let points = point::Point::generate_points(args.bounds(), args.num_points);
     let result = kmeans::execute(&args, &points);
 
