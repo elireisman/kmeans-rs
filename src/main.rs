@@ -7,7 +7,7 @@ use clap::Parser;
 
 fn main() {
     let args = cli::Args::parse();
-    eprintln!("kmeans-rs: initialized with: {:?}", args);
+    eprintln!("kmeans-rs: initialized with: {:?}", &args);
 
     if args.iterations < 1 {
         panic!("kmean-rs: no point in performing less than 1 iteration");
