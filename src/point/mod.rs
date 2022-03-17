@@ -7,6 +7,9 @@ use std::hash::{Hash, Hasher};
 pub struct Point {
     pub x: f64,
     pub y: f64,
+
+    #[serde(skip_serializing)]
+    pub color: Option<usize>,
 }
 
 const EPSILON: f64 = 0.00001;
@@ -28,6 +31,9 @@ impl Hash for Point {
             std::mem::transmute::<f64, u64>(self.x).hash(state);
             std::mem::transmute::<f64, u64>(self.y).hash(state);
         }
+        if let Some(color) = self.color {
+            color.hash(state);
+        }
     }
 }
 
@@ -38,11 +44,35 @@ impl Point {
 
     pub fn generate_points(bounds: &(Point, Point), cardinality: usize) -> Vec<Point> {
         let mut points = vec![];
-        for _ in 0..cardinality {
-            points.push(Self::generate_point(bounds));
+        for _ in 1..=cardinality {
+            points.push(Self::generate_point(bounds, None));
         }
 
         points
+    }
+
+    pub fn generate_point(bounds: &(Point, Point), color: Option<usize>) -> Point {
+        let mut r = rand::thread_rng();
+
+        loop {
+            let p = Point {
+                x: r.gen::<f64>() * bounds.1.x,
+                y: r.gen::<f64>() * bounds.1.y,
+                color: color,
+            };
+
+            return match &p {
+                Point { x, y, .. }
+                    if *x >= bounds.0.x
+                        && *x < bounds.1.x
+                        && *y >= bounds.0.y
+                        && *y < bounds.1.y =>
+                {
+                    p
+                }
+                _ => Self::generate_point(bounds, color),
+            };
+        }
     }
 
     #[allow(dead_code)]
@@ -59,29 +89,6 @@ impl Point {
             selections.insert(candidate, selected);
         }
 
-        selections.values().map(|p| p.clone()).collect()
-    }
-
-    fn generate_point(bounds: &(Point, Point)) -> Point {
-        let mut r = rand::thread_rng();
-
-        loop {
-            let p = Point {
-                x: r.gen::<f64>() * bounds.1.x,
-                y: r.gen::<f64>() * bounds.1.y,
-            };
-
-            return match &p {
-                Point { x, y }
-                    if *x >= bounds.0.x
-                        && *x < bounds.1.x
-                        && *y >= bounds.0.y
-                        && *y < bounds.1.y =>
-                {
-                    p
-                }
-                _ => Self::generate_point(bounds),
-            };
-        }
+        selections.into_values().collect()
     }
 }

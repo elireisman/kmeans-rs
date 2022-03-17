@@ -1,10 +1,38 @@
+use crate::kmeans::Cluster;
 use crate::point::Point;
 use plotters::prelude::*;
-use std::collections::HashMap;
+use serde::Serialize;
 
-pub fn render_iteration(
+#[derive(Serialize)]
+struct ClusterJson<'a> {
+    centroid: &'a Point,
+    cluster: &'a Vec<&'a Point>,
+}
+
+#[derive(Serialize)]
+struct IterationJson<'a> {
+    iteration: usize,
+    clusters: Vec<ClusterJson<'a>>,
+}
+
+pub fn render_iteration_json(iteration: usize, clusters: &Cluster) {
+    let formatted = IterationJson {
+        iteration: iteration,
+        clusters: clusters
+            .iter()
+            .map(|(k, v)| ClusterJson {
+                centroid: k,
+                cluster: v,
+            })
+            .collect(),
+    };
+
+    println!("{}", serde_json::to_string(&formatted).ok().unwrap());
+}
+
+pub fn render_iteration_png(
     bounds: &(Point, Point),
-    clusters: &HashMap<Point, Vec<Point>>,
+    clusters: &Cluster,
     k: usize,
     iter: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -23,31 +51,29 @@ pub fn render_iteration(
         .build_cartesian_2d((bounds.0.x)..(bounds.1.x), (bounds.0.y)..(bounds.1.y))?;
     chart.configure_mesh().draw()?;
 
-    let mut color_iter = 1;
-    for points in clusters.values() {
+    for (centroid, points) in clusters {
         chart.draw_series(PointSeries::of_element(
             points.iter().map(|p| (p.x, p.y)),
             5,
-            &Palette99::pick(color_iter),
+            &Palette99::pick(centroid.color.unwrap()),
             &|c, s: u32, st| return EmptyElement::at(c) + Circle::new((0, 0), s, st.filled()),
         ))?;
-        color_iter += 1;
-    }
 
-    chart.draw_series(PointSeries::of_element(
-        clusters.keys().map(|p| (p.x, p.y)),
-        5,
-        &BLACK,
-        &|c, s: u32, st| {
-            return EmptyElement::at(c)
-                + Circle::new((0, 0), s, st.filled())
-                + Text::new(
-                    format!("({:.1}, {:.1})", c.0, c.1),
-                    (10, 0),
-                    ("sans-serif", 12).into_font(),
-                );
-        },
-    ))?;
+        chart.draw_series(PointSeries::of_element(
+            [(centroid.x, centroid.y)],
+            5,
+            &BLACK,
+            &|c, s: u32, st| {
+                return EmptyElement::at(c)
+                    + Circle::new((0, 0), s, st.filled())
+                    + Text::new(
+                        format!("({:.1}, {:.1})", c.0, c.1),
+                        (10, 0),
+                        ("sans-serif", 12).into_font(),
+                    );
+            },
+        ))?;
+    }
 
     Ok(())
 }
