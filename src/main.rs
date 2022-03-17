@@ -25,6 +25,7 @@ fn main() {
     }
 
     if !args.png_out.is_empty() {
+        std::fs::remove_dir_all(&args.png_out).unwrap();
         std::fs::create_dir_all(&args.png_out).unwrap();
         for (iteration, clusters) in result.iter().enumerate() {
             render::render_iteration_png(&args, clusters, iteration).unwrap();
