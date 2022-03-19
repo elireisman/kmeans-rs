@@ -35,7 +35,7 @@ pub fn generate_point(bounds: (&Point, &Point), color: Option<usize>) -> Point {
     }
 }
 
-#[derive(Debug, Copy, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
