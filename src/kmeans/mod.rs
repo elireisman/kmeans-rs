@@ -59,7 +59,7 @@ fn regroup_points(points: &Vec<Point>, centroids: Vec<Point>) -> (Cluster, f64) 
     let mut total_error: f64 = 0.0;
 
     for point in points {
-        // group this point under best-fit centroid and current capture min error
+        // group this point under best-fit centroid and capture the associated min error
         let (centroid, min_error) = centroids.iter().fold(
             (None, f64::MAX),
             |acc: (Option<&Point>, f64), candidate: &Point| match acc {
