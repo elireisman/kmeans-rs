@@ -8,38 +8,51 @@ use std::io::BufReader;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
-    // K param (number of clusters)
-    #[clap(short, long, default_value_t = 4)]
+    #[clap(
+        short,
+        long,
+        help = "K param (number of clusters)",
+        default_value_t = 4
+    )]
     pub k: usize,
 
-    // number of iterations to run
-    #[clap(short, long, default_value_t = 12)]
+    #[clap(
+        short,
+        long,
+        help = "number of iterations to perform",
+        default_value_t = 12
+    )]
     pub iterations: usize,
 
-    // number of (randomly generated) input points to partition
-    #[clap(short, long, default_value_t = 100)]
+    #[clap(
+        short,
+        long,
+        help = "number of (randomly generated) input points to cluster",
+        default_value_t = 100
+    )]
     pub num_points: usize,
 
-    // if present, the path to a file containing a JSON array of points of the form
-    // [{"x": 1.1, "y": 2.2}, {"x": 3.3, "y": 4.4}, ...] to use as inputs.
-    // Overrides --num-points if present.
-    #[clap(short, long)]
+    #[clap(
+        short,
+        long,
+        help = "path to a JSON file containing input points of the form [{\"x\": 1.1, \"y\": 2.2}, {\"x\": 3.3, \"y\": 4.4}, ...]"
+    )]
     pub points_file: Option<String>,
 
-    // render and store per-iteration PNG images
-    #[clap(long, default_value = "kmeans-pngs")]
+    #[clap(
+        long,
+        help = "path to directory where per-iteration PNG images will be stored",
+        default_value = "kmeans-pngs"
+    )]
     pub png_out: String,
 
-    // render per-iteration JSON output
-    #[clap(long)]
+    #[clap(long, help = "render per-iteration JSON output")]
     pub json_out: bool,
 
-    // points lower bound
-    #[clap(long, default_value = "(0,0)")]
+    #[clap(long, help = "lower bound for points", default_value = "(0,0)")]
     pub lower_bound: Point,
 
-    // points upper bound
-    #[clap(long, default_value = "(1000,1000)")]
+    #[clap(long, help = "higher bound for points", default_value = "(1000,1000)")]
     pub upper_bound: Point,
 }
 
