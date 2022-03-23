@@ -2,7 +2,10 @@ use crate::cli::Args;
 use crate::kmeans::Cluster;
 use crate::point::Point;
 use plotters::prelude::*;
+use rayon::prelude::*;
 use serde::Serialize;
+use std::error::Error;
+use std::sync::mpsc::channel;
 
 #[derive(Serialize)]
 struct ClusterJson<'a> {
@@ -38,12 +41,34 @@ pub fn json_all_iterations(all_clusters: &Vec<Cluster>) {
     println!("{}", serde_json::to_string(&result).ok().unwrap());
 }
 
+// render PNG for all iterations of K-means
+pub fn png_all_iterations(
+    args: &Args,
+    all_clusters: &Vec<Cluster>,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let (sender, receiver) = channel();
+
+    (0_usize..all_clusters.len())
+        .into_par_iter()
+        .for_each_with(sender, |s, iter| {
+            if let Err(e) = png_for_iteration(args, all_clusters.get(iter).unwrap(), iter) {
+                s.send(e).unwrap()
+            }
+        });
+
+    for render_err in receiver {
+        return Err(render_err);
+    }
+
+    Ok(())
+}
+
 // render PNG for a single K-means iteration
-pub fn png_for_iteration(
+fn png_for_iteration(
     args: &Args,
     clusters: &Cluster,
     iter: usize,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error + Send + Sync>> {
     let bounds = args.bounds();
     let filename = format!("{}/iteration-{:05}.png", &args.png_out, iter);
 
