@@ -4,7 +4,6 @@ use serde_json::{from_reader, Value};
 use std::fs::File;
 use std::io::BufReader;
 
-// toy K-Means clustering on random set of input points. renders a PNG per iteration
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
@@ -49,10 +48,10 @@ pub struct Args {
     #[clap(long, help = "render per-iteration JSON output")]
     pub json_out: bool,
 
-    #[clap(long, help = "lower bound for points", default_value = "(0,0)")]
+    #[clap(long, help = "lower bound for points", default_value = "0,0")]
     pub lower_bound: Point,
 
-    #[clap(long, help = "higher bound for points", default_value = "(1000,1000)")]
+    #[clap(long, help = "higher bound for points", default_value = "1000,1000")]
     pub upper_bound: Point,
 }
 

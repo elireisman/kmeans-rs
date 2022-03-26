@@ -69,14 +69,12 @@ impl Hash for Point {
     }
 }
 
+// convert raw String input of the form "11,22.3" into Point
 impl FromStr for Point {
     type Err = ParseFloatError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let coords: Vec<&str> = s
-            .trim_matches(|p| p == '(' || p == ')')
-            .split(',')
-            .collect();
+        let coords: Vec<&str> = s.split(',').collect();
 
         let x_fromstr = coords[0].parse::<f64>()?;
         let y_fromstr = coords[1].parse::<f64>()?;
