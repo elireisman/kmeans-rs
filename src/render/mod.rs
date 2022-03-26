@@ -20,7 +20,7 @@ struct IterationJson<'a> {
 }
 
 // render JSON output for all iterations of K-means performed
-pub fn json_all_iterations(all_clusters: &Vec<Cluster>) {
+pub fn json_all_iterations(all_clusters: &Vec<Cluster>) -> Result<String, Box<dyn Error>> {
     let mut result = vec![];
     for (iteration, clusters) in all_clusters.iter().enumerate() {
         let formatted = IterationJson {
@@ -37,8 +37,8 @@ pub fn json_all_iterations(all_clusters: &Vec<Cluster>) {
         result.push(formatted);
     }
 
-    // TODO: yuck stdout; do better
-    println!("{}", serde_json::to_string(&result).ok().unwrap());
+    let rendered = serde_json::to_string(&result)?;
+    Ok(rendered)
 }
 
 // render PNG for all iterations of K-means

@@ -18,7 +18,8 @@ fn main() {
 
     eprintln!("kmeans-rs: rendering output");
     if args.json_out {
-        render::json_all_iterations(&result);
+        let output = render::json_all_iterations(&result).unwrap();
+        println!("{}", output);
     }
 
     if !args.png_out.is_empty() {
