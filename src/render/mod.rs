@@ -1,6 +1,6 @@
 use crate::cli::Config;
 use crate::kmeans::Cluster;
-use crate::point::Point;
+use crate::point::{Centroid, Point};
 use plotters::prelude::*;
 use rayon::prelude::*;
 use serde::Serialize;
@@ -9,7 +9,7 @@ use std::sync::mpsc::channel;
 
 #[derive(Serialize)]
 struct ClusterJson<'a> {
-    centroid: &'a Point,
+    centroid: &'a Centroid,
     cluster: &'a Vec<&'a Point>,
 }
 
@@ -95,7 +95,7 @@ fn png_for_iteration(
         ))?;
 
         chart.draw_series(PointSeries::of_element(
-            [(centroid.x, centroid.y)],
+            [(centroid.p.x, centroid.p.y)],
             5,
             &BLACK,
             &|c, s: u32, st| {

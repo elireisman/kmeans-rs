@@ -10,7 +10,7 @@ use std::str::FromStr;
 pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Point> {
     let mut points = vec![];
     for _ in 1..=cardinality {
-        points.push(generate_point(bounds, None));
+        points.push(generate_point(bounds));
     }
 
     points
@@ -40,7 +40,6 @@ pub fn generate_clustered_points(
             bounds,
             centers.get(selection).unwrap(),
             max_radius,
-            None,
         ));
     }
 
@@ -51,7 +50,6 @@ fn generate_clustered_point(
     bounds: (&Point, &Point),
     cluster_center: &Point,
     radius: f64,
-    color: Option<usize>,
 ) -> Point {
     let mut r = rand::thread_rng();
     let dist = r.gen_range((-radius)..radius);
@@ -60,7 +58,6 @@ fn generate_clustered_point(
     let candidate = Point {
         x: cluster_center.x + (dist * angle.sin()),
         y: cluster_center.y + (dist * angle.cos()),
-        color: color,
     };
 
     match candidate {
@@ -69,19 +66,38 @@ fn generate_clustered_point(
         {
             candidate
         }
-        _ => generate_clustered_point(bounds, cluster_center, radius, color),
+        _ => generate_clustered_point(bounds, cluster_center, radius),
     }
 }
 
-pub fn generate_point(bounds: (&Point, &Point), color: Option<usize>) -> Point {
+pub fn generate_point(bounds: (&Point, &Point)) -> Point {
     let mut r = rand::thread_rng();
     let x: f64 = r.gen_range(bounds.0.x..bounds.1.x);
     let y: f64 = r.gen_range(bounds.0.y..bounds.1.y);
 
-    Point {
-        x: x,
-        y: y,
-        color: color,
+    Point { x: x, y: y }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct Centroid {
+    pub p: Point,
+    pub color: Option<usize>,
+}
+
+impl PartialEq for Centroid {
+    fn eq(&self, other: &Self) -> bool {
+        return self.p == other.p && self.color == other.color;
+    }
+}
+
+impl Eq for Centroid {}
+
+impl Hash for Centroid {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.p.hash(state);
+        if let Some(color) = self.color {
+            color.hash(state);
+        }
     }
 }
 
@@ -89,9 +105,6 @@ pub fn generate_point(bounds: (&Point, &Point), color: Option<usize>) -> Point {
 pub struct Point {
     pub x: f64,
     pub y: f64,
-
-    #[serde(skip_serializing)]
-    pub color: Option<usize>,
 }
 
 const EPSILON: f64 = 0.00001;
@@ -101,7 +114,7 @@ impl PartialEq for Point {
         let diffx = f64::abs(self.x - other.x);
         let diffy = f64::abs(self.y - other.y);
 
-        return diffx < EPSILON && diffy < EPSILON && self.color == other.color;
+        return diffx < EPSILON && diffy < EPSILON;
     }
 }
 
@@ -112,9 +125,6 @@ impl Hash for Point {
         unsafe {
             std::mem::transmute::<f64, u64>(self.x).hash(state);
             std::mem::transmute::<f64, u64>(self.y).hash(state);
-        }
-        if let Some(color) = self.color {
-            color.hash(state);
         }
     }
 }
@@ -132,7 +142,6 @@ impl FromStr for Point {
         Ok(Point {
             x: x_fromstr,
             y: y_fromstr,
-            color: None,
         })
     }
 }
@@ -143,17 +152,23 @@ impl Point {
     }
 
     #[allow(dead_code)]
-    pub fn select_initial_centroids(points: &Vec<Point>, k: usize) -> Vec<Point> {
+    pub fn select_initial_centroids(points: &Vec<Point>, k: usize) -> Vec<Centroid> {
         let mut r = rand::thread_rng();
 
         let mut selections = HashMap::new();
-        for _ in 0..k {
+        for color in 1..=k {
             let candidate = r.gen::<usize>() % points.len();
             if selections.get(&candidate).is_some() {
                 continue;
             }
             let selected = points[candidate].clone();
-            selections.insert(candidate, selected);
+            selections.insert(
+                candidate,
+                Centroid {
+                    p: selected,
+                    color: Some(color),
+                },
+            );
         }
 
         selections.into_values().collect()

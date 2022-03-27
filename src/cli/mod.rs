@@ -109,7 +109,6 @@ impl Config {
                 Point {
                     x: p["x"].as_f64().unwrap(),
                     y: p["y"].as_f64().unwrap(),
-                    color: None,
                 }
             })
             .collect();
