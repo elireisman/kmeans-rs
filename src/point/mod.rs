@@ -31,7 +31,6 @@ pub fn generate_clustered_points(
         _ => panic!("wtf min_bound!?"),
     };
 
-    eprintln!("[ELI DEBUG] min_bound = {}; k = {}", min_bound, k);
     let max_radius = min_bound / (k as f64);
 
     let mut points = vec![];

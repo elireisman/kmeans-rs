@@ -1,6 +1,8 @@
 use crate::point::{generate_clustered_points, Point};
 use clap::Parser;
 use serde_json::{from_reader, Value};
+use std::error::Error;
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufReader;
 
@@ -40,27 +42,45 @@ pub struct Args {
 
     #[clap(
         long,
-        help = "path to directory where per-iteration PNG images will be stored",
+        help = "path to directory where PNG images will be stored",
         default_value = "kmeans-pngs"
     )]
     pub png_out: String,
 
-    #[clap(long, help = "render per-iteration JSON output")]
+    #[clap(long, help = "render output as JSON")]
     pub json_out: bool,
 
     #[clap(long, help = "lower bound for points", default_value = "0,0")]
     pub lower_bound: Point,
 
-    #[clap(long, help = "higher bound for points", default_value = "1000,1000")]
+    #[clap(long, help = "upper bound for points", default_value = "1000,1000")]
     pub upper_bound: Point,
 }
 
 impl Args {
-    pub fn bounds(&self) -> (&Point, &Point) {
+    pub fn validate(&self) -> Result<(), Box<ValidationError>> {
+        eprintln!("kmeans-rs: initialized with: {:?}", &self);
+
         if self.lower_bound.x >= self.upper_bound.x || self.lower_bound.y >= self.upper_bound.y {
-            panic!("kmeans-rs: lower bounds cannot be greater than upper bounds");
+            return Err(ValidationError::new(
+                "kmeans-rs: lower bounds cannot be greater than upper bounds",
+            ));
         }
 
+        if self.k < 1 {
+            return Err(ValidationError::new("kmeans-rs: k must be positive"));
+        }
+
+        if self.iterations < 1 {
+            return Err(ValidationError::new(
+                "kmean-rs: no point in performing less than 1 iteration",
+            ));
+        }
+
+        Ok(())
+    }
+
+    pub fn bounds(&self) -> (&Point, &Point) {
         (&self.lower_bound, &self.upper_bound)
     }
 
@@ -106,5 +126,30 @@ impl Args {
         }
 
         points
+    }
+}
+
+#[derive(Debug)]
+pub struct ValidationError {
+    err_msg: String,
+}
+
+impl ValidationError {
+    fn new(msg: &str) -> Box<Self> {
+        Box::new(Self {
+            err_msg: msg.to_string(),
+        })
+    }
+}
+
+impl Display for ValidationError {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.err_msg)
+    }
+}
+
+impl Error for ValidationError {
+    fn description(&self) -> &str {
+        &self.err_msg
     }
 }
