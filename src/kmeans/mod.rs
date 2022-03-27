@@ -7,10 +7,10 @@ pub type Cluster<'a> = HashMap<Point, Vec<&'a Point>>;
 const EPSILON: f64 = 0.01;
 
 // https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
-pub fn execute<'a>(args: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
+pub fn execute<'a>(cfg: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
     // initialize candidate centroids randomly and assign cluster colors
-    let initial_centroids = (1..=args.k)
-        .map(|color| generate_point(args.bounds(), Some(color)))
+    let initial_centroids = (1..=cfg.k)
+        .map(|color| generate_point(cfg.bounds(), Some(color)))
         .collect();
 
     // perform the initial clustering using candidates
@@ -18,7 +18,7 @@ pub fn execute<'a>(args: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
 
     // perform iterations
     let mut cache = vec![clusters.clone()];
-    for iter in 1..=args.iterations {
+    for iter in 1..=cfg.iterations {
         eprintln!("kmeans-rs: calculating iteration {}", iter);
 
         let mut next_centroids = vec![];

@@ -43,7 +43,7 @@ pub fn json_all_iterations(all_clusters: &Vec<Cluster>) -> Result<String, Box<dy
 
 // render PNG for all iterations of K-means
 pub fn png_all_iterations(
-    args: &Config,
+    cfg: &Config,
     all_clusters: &Vec<Cluster>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let (sender, receiver) = channel();
@@ -51,7 +51,7 @@ pub fn png_all_iterations(
     (0_usize..all_clusters.len())
         .into_par_iter()
         .for_each_with(sender, |s, iter| {
-            if let Err(e) = png_for_iteration(args, all_clusters.get(iter).unwrap(), iter) {
+            if let Err(e) = png_for_iteration(cfg, all_clusters.get(iter).unwrap(), iter) {
                 s.send(e).unwrap()
             }
         });
@@ -65,19 +65,19 @@ pub fn png_all_iterations(
 
 // render PNG for a single K-means iteration
 fn png_for_iteration(
-    args: &Config,
+    cfg: &Config,
     clusters: &Cluster,
     iter: usize,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let bounds = args.bounds();
-    let filename = format!("{}/iteration-{:05}.png", &args.png_out, iter);
+    let bounds = cfg.bounds();
+    let filename = format!("{}/iteration-{:05}.png", &cfg.png_out, iter);
 
     let root = BitMapBackend::new(&filename, (1024, 1024)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let mut chart = ChartBuilder::on(&root)
         .caption(
-            format!("K-means (k={}, iteration={})", args.k, iter),
+            format!("K-means (k={}, iteration={})", cfg.k, iter),
             ("sans-serif", 50).into_font(),
         )
         .margin(5 as u32)
