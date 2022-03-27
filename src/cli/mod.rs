@@ -8,7 +8,7 @@ use std::io::BufReader;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
-pub struct Args {
+pub struct Config {
     #[clap(
         short,
         long,
@@ -57,7 +57,7 @@ pub struct Args {
     pub upper_bound: Point,
 }
 
-impl Args {
+impl Config {
     pub fn validate(&self) -> Result<(), Box<ValidationError>> {
         eprintln!("kmeans-rs: initialized with: {:?}", &self);
 

@@ -1,4 +1,4 @@
-use crate::cli::Args;
+use crate::cli::Config;
 use crate::kmeans::Cluster;
 use crate::point::Point;
 use plotters::prelude::*;
@@ -43,7 +43,7 @@ pub fn json_all_iterations(all_clusters: &Vec<Cluster>) -> Result<String, Box<dy
 
 // render PNG for all iterations of K-means
 pub fn png_all_iterations(
-    args: &Args,
+    args: &Config,
     all_clusters: &Vec<Cluster>,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let (sender, receiver) = channel();
@@ -65,7 +65,7 @@ pub fn png_all_iterations(
 
 // render PNG for a single K-means iteration
 fn png_for_iteration(
-    args: &Args,
+    args: &Config,
     clusters: &Cluster,
     iter: usize,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {

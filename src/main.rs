@@ -6,7 +6,7 @@ mod render;
 use clap::Parser;
 
 fn main() {
-    let args = cli::Args::parse();
+    let args = cli::Config::parse();
     if let Err(e) = args.validate() {
         panic!("{}", e);
     }
