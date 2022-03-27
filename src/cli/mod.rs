@@ -20,8 +20,8 @@ pub struct Config {
     #[clap(
         short,
         long,
-        help = "number of iterations to perform",
-        default_value_t = 12
+        help = "maximum iterations to perform without convergence",
+        default_value_t = 20
     )]
     pub iterations: usize,
 
