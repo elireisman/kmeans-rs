@@ -1,4 +1,4 @@
-use crate::point::{generate_points, Point};
+use crate::point::{generate_clustered_points, Point};
 use clap::Parser;
 use serde_json::{from_reader, Value};
 use std::fs::File;
@@ -57,6 +57,10 @@ pub struct Args {
 
 impl Args {
     pub fn bounds(&self) -> (&Point, &Point) {
+        if self.lower_bound.x >= self.upper_bound.x || self.lower_bound.y >= self.upper_bound.y {
+            panic!("kmeans-rs: lower bounds cannot be greater than upper bounds");
+        }
+
         (&self.lower_bound, &self.upper_bound)
     }
 
@@ -66,7 +70,7 @@ impl Args {
                 panic!("kmeans-rs: 'k' greater than 'num_points'");
             }
 
-            return generate_points(self.bounds(), self.num_points);
+            return generate_clustered_points(self.bounds(), self.k, self.num_points);
         }
 
         let file = File::open(self.points_file.as_ref().unwrap()).unwrap();

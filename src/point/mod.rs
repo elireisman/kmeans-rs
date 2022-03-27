@@ -1,10 +1,12 @@
 use rand::prelude::*;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::f64::consts;
 use std::hash::{Hash, Hasher};
 use std::num::ParseFloatError;
 use std::str::FromStr;
 
+#[allow(dead_code)]
 pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Point> {
     let mut points = vec![];
     for _ in 1..=cardinality {
@@ -14,24 +16,73 @@ pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Poin
     points
 }
 
+pub fn generate_clustered_points(
+    bounds: (&Point, &Point),
+    k: usize,
+    cardinality: usize,
+) -> Vec<Point> {
+    let centers = generate_points(bounds, k);
+    let min_bound = match (
+        (bounds.1.x - bounds.0.x) as f64,
+        (bounds.1.x - bounds.0.y) as f64,
+    ) {
+        (x, y) if x <= y => x,
+        (x, y) if x > y => y,
+        _ => panic!("wtf min_bound!?"),
+    };
+
+    eprintln!("[ELI DEBUG] min_bound = {}; k = {}", min_bound, k);
+    let max_radius = min_bound / (k as f64);
+
+    let mut points = vec![];
+    for ndx in 0..cardinality {
+        let selection = ndx % centers.len();
+        points.push(generate_clustered_point(
+            bounds,
+            centers.get(selection).unwrap(),
+            max_radius,
+            None,
+        ));
+    }
+
+    points
+}
+
+fn generate_clustered_point(
+    bounds: (&Point, &Point),
+    cluster_center: &Point,
+    radius: f64,
+    color: Option<usize>,
+) -> Point {
+    let mut r = rand::thread_rng();
+    let dist = r.gen_range((-radius)..radius);
+    let angle = r.gen_range(0.0_f64..(2.0_f64 * consts::PI));
+
+    let candidate = Point {
+        x: cluster_center.x + (dist * angle.sin()),
+        y: cluster_center.y + (dist * angle.cos()),
+        color: color,
+    };
+
+    match candidate {
+        Point { ref x, ref y, .. }
+            if *x >= bounds.0.x && *x < bounds.1.x && *y >= bounds.0.y && *y < bounds.1.y =>
+        {
+            candidate
+        }
+        _ => generate_clustered_point(bounds, cluster_center, radius, color),
+    }
+}
+
 pub fn generate_point(bounds: (&Point, &Point), color: Option<usize>) -> Point {
     let mut r = rand::thread_rng();
+    let x: f64 = r.gen_range(bounds.0.x..bounds.1.x);
+    let y: f64 = r.gen_range(bounds.0.y..bounds.1.y);
 
-    loop {
-        let p = Point {
-            x: r.gen::<f64>() * bounds.1.x,
-            y: r.gen::<f64>() * bounds.1.y,
-            color: color,
-        };
-
-        return match &p {
-            Point { x, y, .. }
-                if *x >= bounds.0.x && *x < bounds.1.x && *y >= bounds.0.y && *y < bounds.1.y =>
-            {
-                p
-            }
-            _ => generate_point(bounds, color),
-        };
+    Point {
+        x: x,
+        y: y,
+        color: color,
     }
 }
 
