@@ -3,6 +3,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::f64::consts;
 use std::hash::{Hash, Hasher};
+use std::mem::transmute;
 use std::num::ParseFloatError;
 use std::str::FromStr;
 
@@ -22,15 +23,16 @@ pub fn generate_clustered_points(
     cardinality: usize,
 ) -> Vec<Point> {
     let centers = generate_points(bounds, k);
-    let min_bound = match (
-        (bounds.1.x - bounds.0.x) as f64,
-        (bounds.1.x - bounds.0.y) as f64,
-    ) {
-        (x, y) if x <= y => x,
-        (x, y) if x > y => y,
-        _ => panic!("wtf min_bound!?"),
-    };
 
+    let min_bound = {
+        let xbound: f64 = (bounds.1.x - bounds.0.x).abs();
+        let ybound: f64 = (bounds.1.y - bounds.0.y).abs();
+
+        match xbound >= ybound {
+            true => ybound,
+            _ => xbound,
+        }
+    };
     let max_radius = min_bound / (k as f64);
 
     let mut points = vec![];
@@ -111,8 +113,8 @@ const EPSILON: f64 = 0.00001;
 
 impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
-        let diffx = f64::abs(self.x - other.x);
-        let diffy = f64::abs(self.y - other.y);
+        let diffx = (self.x - other.x).abs();
+        let diffy = (self.y - other.y).abs();
 
         return diffx < EPSILON && diffy < EPSILON;
     }
@@ -123,8 +125,8 @@ impl Eq for Point {}
 impl Hash for Point {
     fn hash<H: Hasher>(&self, state: &mut H) {
         unsafe {
-            std::mem::transmute::<f64, u64>(self.x).hash(state);
-            std::mem::transmute::<f64, u64>(self.y).hash(state);
+            transmute::<f64, u64>(self.x).hash(state);
+            transmute::<f64, u64>(self.y).hash(state);
         }
     }
 }
