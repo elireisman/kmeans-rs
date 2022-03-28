@@ -63,7 +63,7 @@ fn generate_clustered_point(
     };
 
     match candidate {
-        Point { ref x, ref y, .. }
+        Point { ref x, ref y }
             if *x >= bounds.0.x && *x < bounds.1.x && *y >= bounds.0.y && *y < bounds.1.y =>
         {
             candidate
