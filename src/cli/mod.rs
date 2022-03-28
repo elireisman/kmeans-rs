@@ -77,6 +77,14 @@ impl Config {
             ));
         }
 
+        if self.points_file.is_none() {
+            if self.num_points < self.k {
+                return Err(ValidationError::new(
+                    "kmeans-rs: k is greater than num_points",
+                ));
+            }
+        }
+
         Ok(())
     }
 
@@ -86,10 +94,6 @@ impl Config {
 
     pub fn points(&self) -> Vec<Point> {
         if self.points_file.is_none() {
-            if self.num_points < self.k {
-                panic!("kmeans-rs: 'k' greater than 'num_points'");
-            }
-
             return generate_clustered_points(self.bounds(), self.k, self.num_points);
         }
 
