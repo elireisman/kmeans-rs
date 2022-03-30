@@ -2,21 +2,25 @@
 The kind of thing you write when you're learning a new language. Generates JSON or PNG image outputs:
 
 ```bash
-kmeans-rs 0.4.0
+kmeans-rs 0.5.0
 
 USAGE:
     kmeans-rs [OPTIONS]
 
 OPTIONS:
     -h, --help                         Print help information
-    -i, --iterations <ITERATIONS>      [default: 12]
-        --json-out
-    -k, --k <K>                        [default: 4]
-        --lower-bound <LOWER_BOUND>    [default: (0,0)]
-    -n, --num-points <NUM_POINTS>      [default: 100]
-    -p, --points-file <POINTS_FILE>
-        --png-out <PNG_OUT>            [default: kmeans-pngs]
-        --upper-bound <UPPER_BOUND>    [default: (1000,1000)]
+    -i, --iterations <ITERATIONS>      maximum iterations to perform without convergence [default:
+                                       20]
+        --json-out                     render output as JSON
+    -k, --k <K>                        K param (number of clusters) [default: 4]
+        --lower-bound <LOWER_BOUND>    lower bound for points [default: 0,0]
+    -n, --num-points <NUM_POINTS>      number of (randomly generated) input points to cluster
+                                       [default: 100]
+    -p, --points-file <POINTS_FILE>    path to a JSON file containing input points of the form
+                                       [{"x": 1.1, "y": 2.2}, {"x": 3.3, "y": 4.4}, ...]
+        --png-out <PNG_OUT>            path to directory where PNG images will be stored [default:
+                                       kmeans-pngs]
+        --upper-bound <UPPER_BOUND>    upper bound for points [default: 1000,1000]
     -V, --version                      Print version information
 ```
 
