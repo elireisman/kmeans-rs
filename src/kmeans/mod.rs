@@ -84,3 +84,6 @@ fn regroup_points(points: &Vec<Point>, centroids: Vec<Centroid>) -> (Cluster, f6
 
     (next, total_error)
 }
+
+#[cfg(test)]
+mod test;
