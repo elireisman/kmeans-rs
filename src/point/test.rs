@@ -1,6 +1,26 @@
 use super::*;
 
 #[test]
+fn test_gen_clustered_points() {
+    let bounds = (
+        &Point { x: 0_f64, y: 0_f64 },
+        &Point {
+            x: 100_f64,
+            y: 100_f64,
+        },
+    );
+    let ps = generate_clustered_points(bounds, 3, 9);
+
+    assert_eq!(9, ps.len());
+    ps.iter().for_each(|p| {
+        assert!(p.x >= bounds.0.x);
+        assert!(p.y >= bounds.0.y);
+        assert!(p.x < bounds.1.x);
+        assert!(p.y < bounds.1.y);
+    });
+}
+
+#[test]
 fn test_gen_points() {
     let bounds = (
         &Point { x: 0_f64, y: 0_f64 },
