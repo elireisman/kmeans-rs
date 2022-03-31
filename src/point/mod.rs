@@ -176,3 +176,6 @@ impl Point {
         selections.into_values().collect()
     }
 }
+
+#[cfg(test)]
+mod test;
