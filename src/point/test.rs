@@ -58,6 +58,18 @@ fn test_gen_point() {
 }
 
 #[test]
+fn test_sum_squared_error() {
+    let p1 = Point {
+        x: -2_f64,
+        y: -4_f64,
+    };
+    let p2 = Point { x: 2_f64, y: 4_f64 };
+
+    let result = p1.sum_squared_error(&p2);
+    assert_eq!(80_f64, result);
+}
+
+#[test]
 fn test_point_from_str() {
     let result = Point::from_str("22,33");
     assert!(&result.is_ok());
