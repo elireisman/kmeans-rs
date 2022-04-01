@@ -5,6 +5,7 @@ use plotters::prelude::*;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::error::Error;
+use std::path::PathBuf;
 use std::sync::mpsc::channel;
 
 #[derive(Serialize)]
@@ -70,7 +71,9 @@ fn png_for_iteration(
     iter: usize,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let bounds = cfg.bounds();
-    let filename = format!("{}/iteration-{:05}.png", &cfg.png_out, iter);
+    let filename = cfg
+        .png_out
+        .join(PathBuf::from(format!("iteration-{:05}.png", iter)));
 
     let root = BitMapBackend::new(&filename, (1024, 1024)).into_drawing_area();
     root.fill(&WHITE)?;

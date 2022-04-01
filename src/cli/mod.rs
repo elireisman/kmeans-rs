@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::BufReader;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -45,7 +46,7 @@ pub struct Config {
         help = "path to directory where PNG images will be stored",
         default_value = "kmeans-pngs"
     )]
-    pub png_out: String,
+    pub png_out: PathBuf,
 
     #[clap(long, help = "render output as JSON")]
     pub json_out: bool,

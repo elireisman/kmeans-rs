@@ -19,9 +19,7 @@ fn main() {
         println!("{}", output);
     }
 
-    if !cfg.png_out.is_empty() {
-        let _ = std::fs::remove_dir_all(&cfg.png_out);
-        std::fs::create_dir_all(&cfg.png_out).unwrap();
-        render::png_all_iterations(&cfg, &result).unwrap();
-    }
+    let _ = std::fs::remove_dir_all(&cfg.png_out);
+    std::fs::create_dir_all(&cfg.png_out).unwrap();
+    render::png_all_iterations(&cfg, &result).unwrap();
 }
