@@ -39,7 +39,7 @@ pub struct Config {
         long,
         help = "path to a JSON file containing input points of the form [{\"x\": 1.1, \"y\": 2.2}, {\"x\": 3.3, \"y\": 4.4}, ...]"
     )]
-    pub points_file: Option<String>,
+    pub points_file: Option<PathBuf>,
 
     #[clap(
         long,
