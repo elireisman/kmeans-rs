@@ -9,12 +9,7 @@ const EPSILON: f64 = 0.01;
 // https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
 pub fn execute<'a>(cfg: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
     // initialize candidate centroids randomly and assign cluster colors
-    let initial_centroids = (1..=cfg.k)
-        .map(|color| Centroid {
-            p: generate_point(cfg.bounds()),
-            color: Some(color),
-        })
-        .collect();
+    let initial_centroids = init_centroids(cfg);
 
     // perform the initial clustering using candidates
     let (mut clusters, mut total_error) = regroup_points(points, initial_centroids);
@@ -41,6 +36,16 @@ pub fn execute<'a>(cfg: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
     }
 
     cache
+}
+
+fn init_centroids(cfg: &Config) -> Vec<Centroid> {
+    // initialize candidate centroids randomly and assign cluster colors
+    (1..=cfg.k)
+        .map(|color| Centroid {
+            p: generate_point(cfg.bounds()),
+            color: Some(color),
+        })
+        .collect()
 }
 
 fn calculate_next_centroid(old_centroid: &Centroid, points: &Vec<&Point>) -> Centroid {

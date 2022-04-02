@@ -30,6 +30,7 @@ fn test_bounds() {
 fn test_points() {
     let cfg = test_cfg();
     let resolved = cfg.points();
+
     assert_eq!(cfg.num_points, resolved.len());
 }
 
@@ -43,10 +44,12 @@ fn test_validate_good_cfg() {
 
 #[test]
 fn test_validate_bounds() {
-    let mut cfg = test_cfg();
-    cfg.lower_bound = Point {
-        x: 300_f64,
-        y: 300_f64,
+    let cfg = Config {
+        lower_bound: Point {
+            x: 300_f64,
+            y: 300_f64,
+        },
+        ..test_cfg()
     };
 
     let result = cfg.validate();
@@ -55,9 +58,11 @@ fn test_validate_bounds() {
 
 #[test]
 fn test_validate_k_gte_num_points() {
-    let mut cfg = test_cfg();
-    cfg.k = 44;
-    cfg.num_points = 43;
+    let cfg = Config {
+        k: 44,
+        num_points: 43,
+        ..test_cfg()
+    };
 
     let result = cfg.validate();
     assert!(result.is_err());
@@ -65,16 +70,17 @@ fn test_validate_k_gte_num_points() {
 
 #[test]
 fn test_validate_k() {
-    let mut cfg = test_cfg();
-    cfg.k = 0;
+    let cfg = Config { k: 0, ..test_cfg() };
 
     let result = cfg.validate();
     assert!(result.is_err());
 }
 #[test]
 fn test_validate_iterations() {
-    let mut cfg = test_cfg();
-    cfg.iterations = 0;
+    let cfg = Config {
+        iterations: 0,
+        ..test_cfg()
+    };
 
     let result = cfg.validate();
     assert!(result.is_err());
