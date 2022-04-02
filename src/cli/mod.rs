@@ -78,12 +78,10 @@ impl Config {
             ));
         }
 
-        if self.points_file.is_none() {
-            if self.num_points < self.k {
-                return Err(ValidationError::new(
-                    "kmeans-rs: k is greater than num_points",
-                ));
-            }
+        if self.points_file.is_none() && self.num_points < self.k {
+            return Err(ValidationError::new(
+                "kmeans-rs: k is greater than num_points",
+            ));
         }
 
         Ok(())
@@ -157,3 +155,6 @@ impl Error for ValidationError {
         &self.err_msg
     }
 }
+
+#[cfg(test)]
+mod test;
