@@ -31,7 +31,8 @@ fn test_points() {
     let cfg = test_cfg();
     let resolved = cfg.points();
 
-    assert_eq!(cfg.num_points, resolved.len());
+    assert!(resolved.is_ok());
+    assert_eq!(cfg.num_points, resolved.unwrap().len());
 }
 
 #[test]

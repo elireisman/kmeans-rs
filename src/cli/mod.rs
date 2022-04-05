@@ -91,9 +91,13 @@ impl Config {
         (&self.lower_bound, &self.upper_bound)
     }
 
-    pub fn points(&self) -> Vec<Point> {
+    pub fn points(&self) -> Result<Vec<Point>, Box<ValidationError>> {
         if self.points_file.is_none() {
-            return generate_clustered_points(self.bounds(), self.k, self.num_points);
+            return Ok(generate_clustered_points(
+                self.bounds(),
+                self.k,
+                self.num_points,
+            ));
         }
 
         let file = File::open(self.points_file.as_ref().unwrap()).unwrap();
@@ -101,7 +105,9 @@ impl Config {
         let input: Vec<Value> = from_reader(reader).unwrap();
 
         if input.len() < self.k {
-            panic!("kmeans-rs: 'k' greater than points found in input file");
+            return Err(ValidationError::new(
+                "kmeans-rs: 'k' greater than points found in input file",
+            ));
         }
 
         let points: Vec<Point> = input
@@ -121,13 +127,12 @@ impl Config {
             .iter()
             .any(|p| p.x < bounds.0.x || p.x >= bounds.1.x || p.y < bounds.0.y || p.y >= bounds.1.y)
         {
-            panic!(
-                "kmeans-rs: some input points are out of bounds: {:?}",
-                bounds
-            );
+            return Err(ValidationError::new(
+                "kmeans-rs: some input points are out of bounds",
+            ));
         }
 
-        points
+        Ok(points)
     }
 }
 
