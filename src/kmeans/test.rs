@@ -17,8 +17,8 @@ fn test_calculate_next_centroid() {
         },
     ];
 
-    let next = calculate_next_centroid(&prev, &points);
-    assert_eq!(prev.color, next.color);
+    let next = calculate_next_centroid(prev, points);
+    assert_eq!(Some(5), next.color);
     assert_eq!(10_f64, next.p.x);
     assert_eq!(20_f64, next.p.y);
 }

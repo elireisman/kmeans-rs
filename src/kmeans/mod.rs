@@ -20,7 +20,7 @@ pub fn execute<'a>(cfg: &Config, points: &'a Vec<Point>) -> Vec<Cluster<'a>> {
         eprintln!("kmeans-rs: calculating iteration {}", iter);
 
         let mut next_centroids = vec![];
-        for (centroid, cluster) in &clusters {
+        for (centroid, cluster) in clusters {
             let next_centroid = calculate_next_centroid(centroid, cluster);
             next_centroids.push(next_centroid);
         }
@@ -48,10 +48,10 @@ fn init_centroids(cfg: &Config) -> Vec<Centroid> {
         .collect()
 }
 
-fn calculate_next_centroid(old_centroid: &Centroid, points: &Vec<&Point>) -> Centroid {
-    let size = points.len() as f64;
-    let x = points.iter().fold(0.0, |acc, v| acc + v.x) / size;
-    let y = points.iter().fold(0.0, |acc, v| acc + v.y) / size;
+fn calculate_next_centroid(old_centroid: Centroid, cluster: Vec<&Point>) -> Centroid {
+    let size = cluster.len() as f64;
+    let x = cluster.iter().fold(0.0, |acc, v| acc + v.x) / size;
+    let y = cluster.iter().fold(0.0, |acc, v| acc + v.y) / size;
 
     Centroid {
         p: Point { x: x, y: y },
@@ -63,10 +63,10 @@ fn calculate_next_centroid(old_centroid: &Centroid, points: &Vec<&Point>) -> Cen
 // returns the mapping with total min error for the iteration
 fn regroup_points(points: &Vec<Point>, centroids: Vec<Centroid>) -> (Cluster, f64) {
     let mut next = Cluster::new();
-    let mut total_error: f64 = 0.0;
+    let mut total_error = 0_f64;
 
+    // group each point under best-fit centroid and capture the associated min error
     for point in points {
-        // group this point under best-fit centroid and capture the associated min error
         let (centroid, min_error) = centroids.iter().fold(
             (None, f64::MAX),
             |acc: (Option<&Centroid>, f64), candidate: &Centroid| match acc {
