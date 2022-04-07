@@ -43,7 +43,7 @@ fn init_centroids(cfg: &Config) -> Vec<Centroid> {
     (1..=cfg.k)
         .map(|color| Centroid {
             p: generate_point(cfg.bounds()),
-            color: Some(color),
+            color: color,
         })
         .collect()
 }

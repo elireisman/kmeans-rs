@@ -6,7 +6,7 @@ use std::path::PathBuf;
 fn test_calculate_next_centroid() {
     let prev = Centroid {
         p: Point { x: 0_f64, y: 0_f64 },
-        color: Some(5),
+        color: 5,
     };
 
     let points = vec![
@@ -18,7 +18,7 @@ fn test_calculate_next_centroid() {
     ];
 
     let next = calculate_next_centroid(prev, points);
-    assert_eq!(Some(5), next.color);
+    assert_eq!(5, next.color);
     assert_eq!(10_f64, next.p.x);
     assert_eq!(20_f64, next.p.y);
 }
@@ -44,8 +44,8 @@ fn test_init_centroid() {
 
     let mut colors_seen = HashSet::new();
     centroids.iter().for_each(|c| {
-        assert!(c.color.is_some());
-        assert!(!colors_seen.contains(&c.color.unwrap()));
-        colors_seen.insert(c.color.unwrap());
+        assert!(c.color > 0_usize);
+        assert!(!colors_seen.contains(&c.color));
+        colors_seen.insert(c.color);
     });
 }

@@ -93,7 +93,7 @@ fn png_for_iteration(
         chart.draw_series(PointSeries::of_element(
             points.iter().map(|p| (p.x, p.y)),
             5,
-            &Palette99::pick(centroid.color.unwrap()),
+            &Palette99::pick(centroid.color),
             &|c, s: u32, st| return EmptyElement::at(c) + Circle::new((0, 0), s, st.filled()),
         ))?;
 

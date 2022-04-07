@@ -7,8 +7,7 @@ use std::mem::transmute;
 use std::num::ParseFloatError;
 use std::str::FromStr;
 
-#[allow(dead_code)]
-pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Point> {
+fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Point> {
     let mut points = vec![];
     for _ in 1..=cardinality {
         points.push(generate_point(bounds));
@@ -17,12 +16,14 @@ pub fn generate_points(bounds: (&Point, &Point), cardinality: usize) -> Vec<Poin
     points
 }
 
+// generate pre-clustered points when no input file is supplied.
+// this generates more demo-friendly points than generate_points
 pub fn generate_clustered_points(
     bounds: (&Point, &Point),
-    k: usize,
-    cardinality: usize,
+    num_clusters: usize,
+    num_points: usize,
 ) -> Vec<Point> {
-    let centers = generate_points(bounds, k);
+    let centers = generate_points(bounds, num_clusters);
 
     let min_bound = {
         let xbound: f64 = (bounds.1.x - bounds.0.x).abs();
@@ -33,10 +34,10 @@ pub fn generate_clustered_points(
             _ => xbound,
         }
     };
-    let max_radius = min_bound / (k as f64);
+    let max_radius = min_bound / (num_clusters as f64);
 
     let mut points = vec![];
-    for ndx in 0..cardinality {
+    for ndx in 0..num_points {
         let selection = ndx % centers.len();
         points.push(generate_clustered_point(
             bounds,
@@ -55,7 +56,7 @@ fn generate_clustered_point(
 ) -> Point {
     let mut r = rand::thread_rng();
     let dist = r.gen_range((-radius)..radius);
-    let angle = r.gen_range(0.0_f64..(2.0_f64 * consts::PI));
+    let angle = r.gen_range(0_f64..(2_f64 * consts::PI));
 
     let candidate = Point {
         x: cluster_center.x + (dist * angle.sin()),
@@ -80,10 +81,10 @@ pub fn generate_point(bounds: (&Point, &Point)) -> Point {
     Point { x: x, y: y }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Hash, Serialize)]
 pub struct Centroid {
     pub p: Point,
-    pub color: Option<usize>,
+    pub color: usize,
 }
 
 impl PartialEq for Centroid {
@@ -93,15 +94,6 @@ impl PartialEq for Centroid {
 }
 
 impl Eq for Centroid {}
-
-impl Hash for Centroid {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.p.hash(state);
-        if let Some(color) = self.color {
-            color.hash(state);
-        }
-    }
-}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Point {
@@ -168,7 +160,7 @@ impl Point {
                 candidate,
                 Centroid {
                     p: selected,
-                    color: Some(color),
+                    color: color,
                 },
             );
         }
